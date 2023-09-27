@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "gaming-server",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

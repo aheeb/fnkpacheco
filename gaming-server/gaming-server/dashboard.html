@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script> <!-- Firestore -->
+</head>
+<body>
+  <h1>Dashboard</h1>
+  
+  <button id="logoutButton">Logout</button>
+
+  <div id="userInfo">
+    <!-- User information will go here -->
+  </div>
+
+  <div id="orderSection">
+    <!-- Orders will go here -->
+  </div>
+
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyCsQcD4txCXhk01Z0rse6l0CD3TnVVi374",
+      authDomain: "andri-heebtest.firebaseapp.com",
+      projectId: "andri-heebtest",
+      storageBucket: "andri-heebtest.appspot.com",
+      messagingSenderId: "206964986935",
+      appId: "1:206964986935:web:17b8de010ef25a9d9a5bb2"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(); // Firestore
+
+    // Logout button event
+    document.getElementById("logoutButton").addEventListener('click', function() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      }).catch((error) => {
+        console.error("Logout failed:", error);
+      });
+    });
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in, populate the dashboard
+        document.getElementById("userInfo").innerHTML = `Welcome, ${user.email}`;
+        
+        // Fetch orders from Firestore
+        db.collection("orders").where("userId", "==", user.uid)
+        .get()
+        .then((querySnapshot) => {
+          let ordersHTML = '<h2>Your Orders</h2>';
+          querySnapshot.forEach((doc) => {
+            ordersHTML += `<div>Order ID: ${doc.id}, Product: ${doc.data().product}</div>`;
+          });
+          document.getElementById("orderSection").innerHTML = ordersHTML;
+        }).catch((error) => {
+          console.log("Error getting documents: ", error);
+        });
+
+      } else {
+        // No user is signed in, redirect to login
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

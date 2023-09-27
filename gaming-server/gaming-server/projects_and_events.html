@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-8">
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+
+    <!-- Interface für die erste Zeitachse -->
+    <div id="addTimelineEvent" class="bg-white rounded-lg p-6 shadow-lg mb-8">
+        <h3 class="text-xl font-semibold mb-4">Add a new event to the first timeline:</h3>
+        <form id="timelineEventForm">
+            <input type="number" id="year" placeholder="Year" class="border rounded p-2 mb-2 w-full">
+            <input type="number" id="month" placeholder="Month" class="border rounded p-2 mb-2 w-full">
+            <input type="number" id="day" placeholder="Day" class="border rounded p-2 mb-2 w-full">
+            <input type="text" id="title" placeholder="Title" class="border rounded p-2 mb-2 w-full">
+            <textarea id="description" placeholder="Description" class="border rounded p-2 w-full"></textarea>
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded mt-4">Add Event</button>
+        </form>
+    </div>
+
+    <!-- Interface für die zweite Zeitachse -->
+    <div id="addProject" class="bg-white rounded-lg p-6 shadow-lg">
+        <h3 class="text-xl font-semibold mb-4">Add a new project to the second timeline:</h3>
+        <form id="projectForm">
+            <input type="number" id="projectYear" placeholder="Year" class="border rounded p-2 mb-2 w-full">
+            <input type="number" id="projectMonth" placeholder="Month" class="border rounded p-2 mb-2 w-full">
+            <input type="number" id="projectDay" placeholder="Day" class="border rounded p-2 mb-2 w-full">
+            <input type="text" id="text1" placeholder="Text 1" class="border rounded p-2 mb-2 w-full">
+            <input type="text" id="imageUrl" placeholder="Image URL" class="border rounded p-2 mb-2 w-full">
+            <input type="text" id="text2" placeholder="Text 2" class="border rounded p-2 mb-2 w-full">
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded mt-4">Add Project</button>
+        </form>
+    </div>
+
+    <script src="addEvents.js"></script>
+</body>
+</html>

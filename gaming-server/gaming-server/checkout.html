@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+</head>
+<body>
+  <h1>Dashboard</h1>
+  <div id="orderSection">
+    <!-- Orders will go here -->
+  </div>
+  <table id="ordersTable">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>User ID</th>
+        <th>Items</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Order data will go here -->
+    </tbody>
+  </table>
+
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyCsQcD4txCXhk01Z0rse6l0CD3TnVVi374",
+      authDomain: "andri-heebtest.firebaseapp.com",
+      projectId: "andri-heebtest",
+      storageBucket: "andri-heebtest.appspot.com",
+      messagingSenderId: "206964986935",
+      appId: "1:206964986935:web:17b8de010ef25a9d9a5bb2"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const db = firebase.firestore();
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in, populate the dashboard
+        document.getElementById("orderSection").innerHTML = `Welcome, ${user.email}`;
+        
+        // Firestore reference to "orders" collection
+        const ordersRef = db.collection("orders");
+
+        // Reference to the HTML table body
+        const ordersTableBody = document.getElementById("ordersTable").querySelector("tbody");
+
+        // Fetch all orders and populate the table
+        ordersRef.get().then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const row = `
+              <tr>
+                <td>${doc.id}</td>
+                <td>${data.userId}</td>
+                <td>${JSON.stringify(data.items)}</td>
+                <td>${data.timestamp.toDate().toLocaleString()}</td>
+              </tr>
+            `;
+            ordersTableBody.innerHTML += row;
+          });
+        });
+
+      } else {
+        // No user is signed in, redirect to login
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

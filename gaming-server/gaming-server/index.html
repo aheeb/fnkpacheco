@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Beispiel Seite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.7/dist/tailwind.min.css" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+    .color {
+      background-image: url("backgroundproduct.jpg");
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: relative; /* Neu hinzugefügt für den grauen Schleier */
+    }
+    
+    
+    .color p, .color ul, .color li, .color h3 {
+      color: black; /* Farbe geändert für bessere Lesbarkeit */
+      text-shadow: 2px 2px 0 0 white;
+      position: relative; /* Neu hinzugefügt, damit Text oberhalb des grauen Schleiers ist */
+      z-index: 1; /* Neu hinzuge
+      fügt, damit Text oberhalb des grauen Schleiers ist */
+    }
+    button{
+      z-index:1;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-auto-columns: auto;
+      grid-gap: 16px;
+    }
+    
+    .timeline {
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* The actual timeline (the vertical ruler) */
+    .timeline::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      background-color: white;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      margin-left: -3px;
+    }
+    
+    /* Container around content */
+    .container {
+      padding: 10px 40px;
+      position: relative;
+      background-color: inherit;
+      width: 50%;
+    }
+    
+    /* The circles on the timeline */
+    .container::after {
+      content: '';
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      right: -17px;
+      background-color: white;
+      border: 4px solid #FF9F55;
+      top: 15px;
+      border-radius: 50%;
+      z-index: 1;
+    }
+    
+    /* Place the container to the left */
+    .left {
+      left: 0;
+    }
+    
+    /* Place the container to the right */
+    .right {
+      left: 50%;
+    }
+    
+    /* Add arrows to the left container (pointing right) */
+    .left::before {
+      content: " ";
+      height: 0;
+      position: absolute;
+      top: 22px;
+      width: 0;
+      z-index: 1;
+      right: 30px;
+      border: medium solid white;
+      border-width: 10px 0 10px 10px;
+      border-color: transparent transparent transparent white;
+    }
+    
+    /* Add arrows to the right container (pointing left) */
+    .right::before {
+      content: " ";
+      height: 0;
+      position: absolute;
+      top: 22px;
+      width: 0;
+      z-index: 1;
+      left: 30px;
+      border: medium solid white;
+      border-width: 10px 10px 10px 0;
+      border-color: transparent white transparent transparent;
+    }
+    
+    /* Fix the circle for containers on the right side */
+    .right::after {
+      left: -16px;
+    }
+    
+    /* The actual content */
+    .content {
+      padding: 20px 30px;
+      background-color: white;
+      position: relative;
+      border-radius: 6px;
+    }
+    
+    /* Media queries - Responsive timeline on screens less than 600px wide */
+    @media screen and (max-width: 600px) {
+    /* Place the timelime to the left */
+      .timeline::after {
+        left: 31px;
+      }
+    
+    /* Full-width containers */
+      .container {
+        width: 100%;
+        padding-left: 70px;
+        padding-right: 25px;
+      }
+    
+    /* Make sure that all arrows are pointing leftwards */
+      .container::before {
+        left: 60px;
+        border: medium solid white;
+        border-width: 10px 10px 10px 0;
+        border-color: transparent white transparent transparent;
+      }
+    
+    /* Make sure all circles are at the same spot */
+      .left::after, .right::after {
+        left: 15px;
+      }
+    
+    /* Make all right containers behave like the left ones */
+      .right {
+        left: 0%;
+      }
+    }
+    .year-container {
+      position: relative;
+    }
+    
+    .year-label {
+      position: absolute;
+      right: -70px;  /* Verändert, um den Schriftzug weiter rechts zu positionieren */
+      top: 0;
+      font-weight: bold;
+    }
+    
+    .year-bracket {
+      position: absolute;
+      right: -35px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background-color: white;
+    }
+
+    
+    
+  </style>
+</head>
+<body class="bg-gray-900 text-white h-screen overflow-auto">
+  <!-- Firebase App is always required and must be first -->
+<script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+
+
+  <div class="relative h-screen w-full ">
+    <img src="hintergrund.jpg" alt="Hintergrundbild" class="absolute w-full h-full object-cover">
+    <div class="absolute bg-gray-800 opacity-75 w-full h-full"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <!-- Für sehr kleine Bildschirme 6xl, für kleine Bildschirme 7xl, für mittlere 4xl und für große 5xl -->
+      <h1 class="text-6xl sm:text-7xl md:text-4xl lg:text-5xl font-bold">GRUPO MULTIVERSO</h1>
+      <!-- Für sehr kleine Bildschirme 2xl, für kleine Bildschirme 3xl, für mittlere 2xl -->
+      <p class="text-2xl sm:text-3xl md:text-2xl mt-4 mb-4">
+        O Grupo Multiverso® é um grupo de indivíduos associados ao FiveM sendo jogadores, desenvolvedores e produtores de conteúdo com o intuito de tornar o roleplay e o palco do FiveM em Portugal melhor.
+      </p>
+      <!-- Keine Änderung am Button -->
+      <button id="scrollButton" class="bg-transparent hover:bg- text-white font-semibold hover:text-white py-2 px-4 border border-white hover:border-transparent rounded">
+        OS NOSSOS PRODUTOS
+      </button>
+    </div>
+  </div>
+  
+<div id="productsSection" class="relative w-full">
+  <img src="hintergrund.jpg" alt="Hintergrundbild" class="absolute w-full h-full object-cover z-0">
+  <div class="absolute bg-gray-800 opacity-75 w-full h-full z-10"></div>
+  <div class="relative z-20">
+    <h2 class="text-4xl font-bold mb-8 text-center">PRODUTOS</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
+      <div class="bg-teal-400 p-4 rounded color">
+        <h3 class="text-sm md:text-2xl font-bold">PACK INICIAL</h3>
+        <ul class="text-xs md:text-base">
+          <li>10000 EUROS INICIAIS</li>
+          <li>500 EUROS A CADA 30 MINUTOS</li>
+        </ul>
+        <p class="text-xs md:text-base">5 EURO</p>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Buy Now</button>
+      </div>
+      <!-- End of a product box -->
+      <!-- Begin of a product box -->
+      <div class="bg-teal-400 p-4 rounded color">
+        <h3 class="text-sm md:text-2xl font-bold">PACK INICIAL</h3>
+        <ul class="text-xs md:text-base">
+          <li>20000 EUROS INICIAIS</li>
+          <li>1000 EUROS A CADA 30 MINUTOS</li>
+        </ul>
+        <p class="text-xs md:text-base">10 Euro</p>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Buy Now</button>
+      </div>
+      <!-- End of a product box -->
+      <!-- Begin of a product box -->
+      <div class="bg-gray-800 p-4 rounded">
+        <h3 class="text-sm md:text-2xl">VIP ULTIMATE OFERECE</h3>
+        <ul class="text-xs md:text-base">
+          <li>ACESSO Á LISTA DE 10 VEICULOS VIP ULTIMATE E OFERTA DE 2 VEICULO DESSA LISTA</li>
+          <li>300000 EUROS DIRETOS</li>
+        </ul>
+        <p class="text-xs md:text-base">35 Euro</p>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Buy Now</button>
+      </div>
+      <!-- End of a product box -->
+      <!-- Begin of a product box -->
+      <div class="bg-gray-800 p-4 rounded">
+        <h3 class="text-sm md:text-2xl">VIP STANDARD OFERECE</h3>
+        <ul class="text-xs md:text-base">
+          <li>ACESSO Á LISTA DE 5 VEICULOS VIP ULTIMATE E OFERTA DE 1 VEICULO DESSA LISTA</li>
+          <li>100000 EUROS DIRETOS</li>
+        </ul>
+        <p class="text-xs md:text-base">15 Euro</p>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Buy Now</button>
+      </div>
+    </div>
+    <button id="scrollButton2" class="bg-transparent hover:bg- text-white font-semibold hover:text-white py-2 px-4 border border-white hover:border-transparent rounded">
+      OUR TEAM
+    </button>
+  </div>
+</div>
+
+
+  <div id="teamSection" class="relative h-screen w-full">
+    <img src="hintergrund.jpg" alt="Hintergrundbild" class="absolute w-full h-full object-cover">
+    <div class="absolute bg-gray-800 opacity-75 w-full h-full"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-4xl font-bold mb-8">OUR TEAM</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Begin of a team member box -->
+        <div class="bg-gray-800 p-4 rounded flex flex-col md:flex-row">
+          <img style="height: 80px; width: 80px;" src="andri.jpeg" alt="">
+          <div class="ml-4">
+            <h3 class="text-sm md:text-base">INGAME NAME: Cosmo</h3>
+            <h4 class="text-sm md:text-base">REAL NAME: Rui Cosme</h4>
+            <h5 class="text-sm md:text-base">ROLE: Main dev & CEO</h5>
+          </div>
+        </div>
+
+        <div class="bg-gray-800 p-4 rounded flex flex-col md:flex-row">
+          <img style="height: 80px; width: 80px;" src="andri.jpeg" alt="">
+          <div class="ml-4">
+            <h3 class="text-sm md:text-base">INGAME NAME: Cosmo</h3>
+            <h4 class="text-sm md:text-base">REAL NAME: Rui Cosme</h4>
+            <h5 class="text-sm md:text-base">ROLE: Main dev & CEO</h5>
+          </div>
+        </div>
+        <!-- End of a team member box -->
+        <!-- ... -->
+      </div>
+      <button id="scrollButton3" class="bg-transparent hover:bg- text-white font-semibold hover:text-white py-2 px-4 border border-white hover:border-transparent rounded">
+        CONTACT US
+      </button>
+    </div>
+  </div>
+  <div id="contactSection" class="relative h-screen w-full">
+    <img src="hintergrund.jpg" alt="Hintergrundbild" class="absolute w-full h-full object-cover">
+    <div class="absolute bg-gray-800 opacity-75 w-full h-full"></div>
+    <div id="contact" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <h2 class="text-4xl font-bold mb-8">CONTACT US</h2>
+      <form class="bg-gray-800 p-4 rounded max-w-2xl">
+        <div class="mb-4">
+          <label for="name" class="block text-xl">Name</label>
+          <input type="text" id="name" name="name" class="bg-gray-900 text-white p-2 rounded w-full">
+        </div>
+        <div class="mb-4">
+          <label for="email" class="block text-xl">Email</label>
+          <input type="email" id="email" name="email" class="bg-gray-900 text-white p-2 rounded w-full">
+        </div>
+        <div class="mb-4">
+          <label for="message" class="block text-xl">Message</label>
+          <textarea id="message" name="message" class="bg-gray-900 text-white p-2 rounded w-full" rows="4"></textarea>
+        </div>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Submit
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="updateSection" class="relative h-screen w-full">
+    <img src="hintergrund.jpg" alt="Hintergrundbild" class="absolute w-full h-full object-cover">
+    <div class="absolute bg-gray-800 opacity-75 w-full h-full"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <h1 class="text-4xl font-bold">UPDATES</h1>
+      <div id="updates-list" class="h-80 flex flex-col flex-wrap">
+        <!-- Updates will be appended here -->
+      </div>      
+      <button id="scrollButton" class="bg-transparent hover:bg- text-white font-semibold hover:text-white py-2 px-4 border border-white hover:border-transparent rounded">
+        OS NOSSOS PRODUTOS
+      </button>
+    </div>
+  </div>
+  
+
+  <div>
+    <div id="timeLineSection" class="relative min-h-screen w-full flex justify-center items-center">
+      <div class="timeline">
+        <!-- Timeline-Elemente hier -->
+      </div>
+    </div>
+  
+    <div id="projectsSection" class="relative min-h-screen w-full flex justify-center items-center">
+      <div class="flex">
+        <!-- Liste von breiten Divs mit schwarzer Farbe -->
+        <div id="leftList" class="w-1/2">
+          <!-- Divs werden später dynamisch hinzugefügt -->
+        </div>
+        
+        <!-- Zeitstrahl -->
+        <div id="timeline" class="w-1/2">
+          <!-- Ereignisse werden später dynamisch hinzugefügt -->
+        </div>
+      </div>
+    </div>
+</div>
+
+  
+  
+  
+  <script src="updates.js"></script>
+  <script src="script.js"></script>
+  <script src="timeline.js"></script>
+  <script>
+    document.getElementById('scrollButton').addEventListener('click', function() {
+      const productsSection = document.getElementById('productsSection');
+      productsSection.scrollIntoView({ behavior: 'smooth' });
+    });
+    document.getElementById('scrollButton2').addEventListener('click', function() {
+      const teamSection = document.getElementById('teamSection');
+      teamSection.scrollIntoView({ behavior: 'smooth' });
+    });
+    document.getElementById('scrollButton3').addEventListener('click', function() {
+      const contactSection = document.getElementById('contactSection');
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    
+  </script>
+</body>
+</html>
